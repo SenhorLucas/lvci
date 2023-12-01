@@ -1,0 +1,38 @@
+services:
+  jenkins-dind:
+    image: docker:dind
+    ports:
+      - 2376:2376
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client
+    networks:
+      - ci-network
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    command: --storage-driver=overlay2
+    privileged: true
+
+  jenkins:
+    build: ./jenkins-lv
+    depends_on:
+      - jenkins-dind
+    ports:
+      - 8080:8080
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+      - ./jenkins-config/jenkins.yaml:/var/jenkins_home/jenkins.yaml
+    networks:
+        - ci-network
+    environment:
+      - DOCKER_HOST=tcp://jenkins-dind:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:
+
+networks:
+  ci-network:

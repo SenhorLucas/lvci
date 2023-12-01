@@ -1,0 +1,15 @@
+jenkins:
+  systemMessage: "Welcom to LV CI Jenkins"
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+
+jobs:
+  - script: >
+      job('Job_DSL_Seed') {
+        steps {
+          shell('echo "hello world"')
+        }
+      }
+

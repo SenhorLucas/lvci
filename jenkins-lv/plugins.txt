@@ -1,0 +1,5 @@
+docker-workflow:latest
+blueocean:latest
+configuration-as-code:latest
+gerrit-trigger:latest
+job-dsl:latest
