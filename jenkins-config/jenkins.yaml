@@ -8,8 +8,16 @@ unclassified:
 jobs:
   - script: >
       job('Job_DSL_Seed') {
+        scm {
+          git {
+            remote {
+              url 'http://gerrit:8080/pipelines'
+            }
+          }
+        }
         steps {
-          shell('echo "hello world"')
+          jobDsl {
+            targets '*.groovy'
+          }
         }
       }
-

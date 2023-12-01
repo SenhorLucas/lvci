@@ -29,17 +29,21 @@ intends to provide an easy starting point for _you_ to develop your own.
 
 Start by [installing Docker Compose] if you haven't yet.
 
-Then bring up the Jenkins service and the runner provider:
+We first need to setup the Gerrit container by running the `init` command. Open
+the `compose.yaml` file and uncomment the `command:` line in the Gerrit service,
+then run:
+
+    docker compose up gerrit
+
+The container starts, runs the `init` command, and stops. Then comment out the
+`command:` line in the `gerrit` service again.
+
+Next, bring up service and the runner provider:
 
     docker compose up
 
-At this point you can browse to localhost:8080 to see your Jenkins instance. Go
-ahead and try to create a pipeline that prints "Hello, world!" to the console.
-Possible using both, declarative and procedural pipeline types to get a feel
-for them.
-
-Clicking around is not the way this project is intended to be used in the long
-run, though, but this is what can be achieved without a Git server.
+Access the Jenkins server at `localhost:8080` and the Gerrit server at
+`localhost:8081`.
 
 To start and stop the containers without removing them:
 
@@ -49,12 +53,12 @@ And to stop the containers and remove them:
 
     docker compose down
 
-If you want to throw away all the Jenkins data (pipelines, etc.), you should
-also delete the volumes with:
+If you want to throw away all the Jenkins data (pipelines, etc.), and the Gerrit
+data, you should also delete the volumes with:
 
     docker compose down -v
 
-## The Jenkins configuration
+## How Jenkins is configured
 
 The Jenkins server is based on the [`jenkins/jenkins`] Docker image. This image is
 further customized in the `jenkins-lv` Dockerfile.
@@ -66,14 +70,37 @@ Further reading:
 
 - https://www.digitalocean.com/community/tutorials/how-to-automate-jenkins-job-configuration-using-job-dsl
 
+## How Gerrit is configured
 
-## Pipeline configuration
+The Gerrit service is based on the `gerritcodereview/gerrit` Docker image.
 
-The idea is that pipelines will be configured automatically using a seed job
-using the JobDSL Jenkins plugin. This is more easily done when we have a Git
-server up and running, which isn't the case just yet.
+## Create a dummy project
+
+The reason we are doing all this is to be able to perform automated tasks when
+things happen in our project. So well we need a project.
+
+1. Create SSH keys
+
+    ssh-keygen -t ed21519 -f ~/.ssh/gerrit-local -C 'Gerrit local'
+    ssh-add ~/.ssh/gerrit-local
+
+2. On the Gerrit UI, paste your public key in the SSH keys under Gerrit settings
+3. Create a repository and clone it locally. We can do whatever we want with it
+   for our testing purposes.
+
+## Create a pipeline
+
+1. Create a repository named `pipelines`, where your pipelines will live. This
+   repository name is currently hard-coded in `jenkins.yaml`.
+2. Clone the `pipelines` repository locally.
+3. Create a `myjob.groovy` file, commit and push it.
+4. Run the seed job on Jenkins
+5. Tadaaa! Your new pipeline appears. On the Jenkins interface.
 
 
+## Listening to events
+
+TBC
 
 [installing Docker Compose]: https://docs.docker.com/compose/install/
 [`jenkins/jenkins`]
